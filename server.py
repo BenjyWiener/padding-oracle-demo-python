@@ -52,11 +52,6 @@ class Server:
         enc_data = data[16:]
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         padded_msg = cipher.decrypt(enc_data)
-        try:
-            unpad(padded_msg, 16)
-            print('Padding: ', padded_msg[-1])
-        except:
-            pass
         return unpad(padded_msg, 16).decode('utf-8')
 
 
