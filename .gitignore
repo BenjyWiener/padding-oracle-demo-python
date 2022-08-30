@@ -1,3 +1,5 @@
 **/.DS_Store
 simenv
 __pycache__
+Dockerfile
+fly.toml

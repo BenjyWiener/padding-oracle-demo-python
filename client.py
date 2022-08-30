@@ -6,13 +6,14 @@ from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad, unpad
 
 class Client:
-    def __init__(self, password: str, port: int = 1337):
+    def __init__(self, password: str, host: str, port: int):
         self.key = SHA256.new(password.encode('utf-8')).digest()
+        self.host = host
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
     def start(self):
-        self.socket.connect(('127.0.0.1', self.port))
+        self.socket.connect((self.host, self.port))
         print(f'Connected to server on port {self.port}.')
         try:
             while True:
@@ -51,12 +52,12 @@ if __name__ == '__main__':
     import sys
     from getpass import getpass
     
-    if not (2 <= len(sys.argv) <= 3) :
-        print(f'Usage: {sys.argv[0]} PORT [PASSWORD]')
+    if not (3 <= len(sys.argv) <= 4) :
+        print(f'Usage: {sys.argv[0]} HOST PORT [PASSWORD]')
         exit(0)
-    
-    port = int(sys.argv[1])
-    password = sys.argv[2] if len(sys.argv) == 3 else getpass('Password: ')
+    host = sys.argv[1]
+    port = int(sys.argv[2])
+    password = sys.argv[3] if len(sys.argv) == 4 else getpass('Password: ')
 
-    client = Client(password, port)
+    client = Client(password, host, port)
     client.start()

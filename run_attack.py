@@ -3,10 +3,9 @@ import socket
 from padding_oracle_attack import PaddingOracle, PaddingOracleAttack
 
 class SimOracle(PaddingOracle):
-    def __init__(self, port: int = 1337):
-        self.port = port
+    def __init__(self, host: str, port: int):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect(('127.0.0.1', self.port))
+        self.socket.connect((host, port))
 
     def check_padding(self, data: bytes, iv: bytes) -> bool:
         self.socket.sendall(iv + data)
@@ -24,14 +23,15 @@ class SimOracle(PaddingOracle):
 if __name__ == '__main__':
     import sys
     
-    if len(sys.argv) != 3 :
-        print(f'Usage: {sys.argv[0]} PORT HEXDATA')
+    if len(sys.argv) != 4 :
+        print(f'Usage: {sys.argv[0]} HOST PORT HEXDATA')
         exit(0)
     
-    port = int(sys.argv[1])
-    data = bytes.fromhex(sys.argv[2])
+    host = sys.argv[1]
+    port = int(sys.argv[2])
+    data = bytes.fromhex(sys.argv[3])
 
-    oracle = SimOracle(port)
+    oracle = SimOracle(host, port)
     attack = PaddingOracleAttack(oracle, verbose=True)
     
     res = attack.decrypt(data[16:], data[:16])
