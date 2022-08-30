@@ -19,7 +19,11 @@ class Client:
             while True:
                 msg = input('> ')
                 data = self.encrypt_msg(msg)
-                self.socket.sendall(data)
+                try:
+                    self.socket.sendall(data)
+                except BrokenPipeError:
+                    print('[SERVER DISCONNECTED]')
+                    break
                 resp_data = self.socket.recv(4096)
                 if len(resp_data) == 0:
                     print('[SERVER DISCONNECTED]')
