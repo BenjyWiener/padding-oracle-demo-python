@@ -16,7 +16,7 @@ class SimOracle(PaddingOracle):
         if resp_code == b'ok':
             return True
         elif resp_code == b'er':
-            return False
+            return resp_data[2:] not in [b'Padding is incorrect.', b'PKCS#7 padding is incorrect.']
         else:
             return None
 
@@ -37,4 +37,4 @@ if __name__ == '__main__':
     res = attack.decrypt(data[16:], data[:16])
 
     print('Done! Decrypted data:')
-    print(res.decode('utf-8'))
+    print(res[32:].decode('utf-8'))

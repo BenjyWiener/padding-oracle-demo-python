@@ -1,7 +1,7 @@
 import socket
 from typing import *
 
-from Cryptodome.Hash import SHA256
+from Cryptodome.Hash import SHA256, HMAC
 from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad, unpad
 
@@ -42,15 +42,19 @@ class Client:
     
     def encrypt_msg(self, msg: str) -> bytes:
         cipher = AES.new(self.key, AES.MODE_CBC)
-        padded_msg = pad(msg.encode('utf-8'), 16)
-        return cipher.iv + cipher.encrypt(padded_msg)
+        data = msg.encode('utf-8')
+        hmac = HMAC.new(self.key, data, SHA256).digest()
+        return cipher.iv + cipher.encrypt(pad(hmac + data, 16))
 
     def decrypt_data(self, data: bytes) -> str:
         iv = data[:16]
         enc_data = data[16:]
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
-        padded_msg = cipher.decrypt(enc_data)
-        return unpad(padded_msg, 16).decode('utf-8')
+        hmac_data = unpad(cipher.decrypt(enc_data), 16)
+        hmac = hmac_data[:32]
+        data = hmac_data[32:]
+        HMAC.new(self.key, data, SHA256).verify(hmac)
+        return data.decode('utf-8')
 
 if __name__ == '__main__':
     import sys
