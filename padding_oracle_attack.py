@@ -1,7 +1,6 @@
 from typing import *
 from abc import ABC, abstractmethod
 
-from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import unpad
 from Cryptodome.Util.strxor import strxor, strxor_c
 
@@ -16,7 +15,7 @@ class PaddingOracleAttack:
         self.verbose = verbose
     
     def decrypt(self, data: bytes, iv: bytes) -> bytes:
-        blocks = [data[i*16:(i+1)*16] for i in range(len(data) // 16)]
+        blocks = [data[i * 16 : (i + 1) * 16] for i in range(len(data) // 16)]
 
         decrypted_data = b''
 
