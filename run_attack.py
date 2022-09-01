@@ -17,6 +17,7 @@ class SimOracle(PaddingOracle):
 
 if __name__ == '__main__':
     import sys
+    import time
     
     if len(sys.argv) != 4 :
         print(f'Usage: {sys.argv[0]} HOST PORT HEXDATA')
@@ -29,9 +30,13 @@ if __name__ == '__main__':
     oracle = SimOracle(host, port)
     attack = PaddingOracleAttack(oracle, verbose=True)
     
+    start = time.time()
+
     # Skip the HMAC, use second block of
     # ciphertext as IV
     res = attack.decrypt(data[48:], data[32:48])
 
-    print('Done! Decrypted data:')
+    end = time.time()
+
+    print(f'Done! Decrypted data in {end - start:.3f} seconds:')
     print(res.decode('utf-8'))
