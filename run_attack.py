@@ -10,15 +10,10 @@ class SimOracle(PaddingOracle):
     def check_padding(self, data: bytes, iv: bytes) -> bool:
         self.socket.sendall(iv + data)
         resp_data = self.socket.recv(4096)
-        if len(resp_data) == 0:
-            return None
-        resp_code = resp_data[:2]
-        if resp_code == b'ok':
-            return True
-        elif resp_code == b'er':
-            return resp_data[2:] not in [b'Padding is incorrect.', b'PKCS#7 padding is incorrect.']
-        else:
-            return None
+        if resp_data[:2] == b'er':
+            if resp_data[2:] in [b'Padding is incorrect.', b'PKCS#7 padding is incorrect.']:
+                return False
+        return True
 
 if __name__ == '__main__':
     import sys
@@ -34,7 +29,9 @@ if __name__ == '__main__':
     oracle = SimOracle(host, port)
     attack = PaddingOracleAttack(oracle, verbose=True)
     
-    res = attack.decrypt(data[16:], data[:16])
+    # Skip the HMAC, use second block of
+    # ciphertext as IV
+    res = attack.decrypt(data[48:], data[32:48])
 
     print('Done! Decrypted data:')
-    print(res[32:].decode('utf-8'))
+    print(res.decode('utf-8'))
