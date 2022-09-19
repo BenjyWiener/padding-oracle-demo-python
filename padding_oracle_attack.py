@@ -34,7 +34,7 @@ class PaddingOracleAttack:
             for b in range(0x100):
                 if self.verbose:
                     print(f'\rDecrypting byte #{17 - i:2d}, trying byte 0x{b:02x}...', end = '')
-                xor[-i] = b
+                xor[-i] = b ^ i
                 if self.oracle.check_padding(block, strxor(iv, xor)):
                     # Check for false positive (... 02 02).
                     # If last byte is now actually 01, changing
@@ -48,7 +48,7 @@ class PaddingOracleAttack:
                         break
             
             if self.verbose:
-                print(f'\rDecrypted  byte #{17 - i:2d}: 0x{b ^ i:02x}               ')
+                print(f'\rDecrypted  byte #{17 - i:2d}: 0x{b:02x}               ')
             
             if i < 16:
                 strxor_c(xor, i ^ (i + 1), xor)
